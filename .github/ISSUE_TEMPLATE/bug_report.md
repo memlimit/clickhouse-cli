@@ -18,7 +18,7 @@ paste the link here.)
 ### Environment
 
 - OS name, version:
-- ClickHouse version
+- ClickHouse version:
 
 ### Possible solution
 
