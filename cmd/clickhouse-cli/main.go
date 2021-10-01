@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/c-bata/go-prompt"
 	"github.com/memlimit/clickhouse-cli/cli"
@@ -12,15 +13,22 @@ import (
 )
 
 func main() {
+	if err := run(); err != nil {
+		fmt.Println(err)
+		os.Exit(0)
+		return
+	}
+}
+
+func run() error {
 	client, err := http.New("https://gh-api.clickhouse.tech/", "play", "")
 	if err != nil {
-		return 
+		return err
 	}
 
 	chVersion, err := client.Query(context.Background(), "SELECT version() FORMAT TabSeparated;")
 	if err != nil {
-		fmt.Println("Failed to connect to ClickHouse")
-		os.Exit(0)
+		return errors.New("failed to connect to ClickHouse")
 	}
 
 	fmt.Printf("Connected to ClickHouse server version %s", chVersion)
@@ -28,14 +36,12 @@ func main() {
 	homeDirPath, err := os.UserHomeDir()
 	h, err := history.New(homeDirPath + "/.clickhouse-client-history")
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(0)
+		return err
 	}
 
 	uh, err := h.Read()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(0)
+		return err
 	}
 
 	c := cli.New(client, h)
@@ -49,4 +55,6 @@ func main() {
 	)
 
 	p.Run()
+
+	return nil
 }
