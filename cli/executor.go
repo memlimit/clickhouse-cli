@@ -3,7 +3,9 @@ package cli
 import (
 	"context"
 	"fmt"
+	"github.com/memlimit/clickhouse-cli/cli/history"
 	"os"
+	"time"
 )
 
 var exitCodes = [...]string{
@@ -28,6 +30,13 @@ var exitCodes = [...]string{
 }
 
 func (c *CLI) Executor(s string) {
+	if err := c.history.Write(&history.Row{
+		CreatedAt: time.Now(),
+		Query:     s,
+	}); err != nil {
+		fmt.Println(err)
+	}
+
 	for _, code := range exitCodes {
 		if s == code {
 			fmt.Println("Bye.")
