@@ -34,27 +34,22 @@ func New(addr string, username string, password string) (*Client, error) {
 }
 
 // NewRequest creates an new request.
-func (c *Client) NewRequest(url, method string) (*http.Request, error) {
+func (c *Client) NewRequest(url, query, method string) (*http.Request, error) {
 	if !strings.HasSuffix(c.baseURL.Path, "/") {
 		return nil, fmt.Errorf("BaseURL must have a trailing slash, but %q does not", c.baseURL)
 	}
 
-	u, err := c.baseURL.Parse(url)
+	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	q := u.Query()
-
+	q := req.URL.Query()
 	q.Add("user", c.username)
 	q.Add("password", c.password)
+	q.Add("query", query)
 
-	u.RawQuery = q.Encode()
-
-	req, err := http.NewRequest(method, u.String(), nil)
-	if err != nil {
-		return nil, err
-	}
+	req.URL.RawQuery = q.Encode()
 
 	return req, nil
 }
@@ -101,9 +96,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request) (string, error) {
 }
 
 func (c *Client) Query(ctx context.Context, query string) (string, error) {
-	u := fmt.Sprintf("?query=%s", query)
-
-	req, err := c.NewRequest(u, "POST")
+	req, err := c.NewRequest(c.baseURL.String(), query, "POST")
 	if err != nil {
 		return "", err
 	}
