@@ -1,13 +1,21 @@
 package http
 
 import (
+	"compress/gzip"
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+)
+
+type CompressType string
+
+const (
+	Gzip CompressType = "gzip"
 )
 
 type Client struct {
@@ -16,20 +24,22 @@ type Client struct {
 	username string
 	password string
 
-	client *http.Client
+	client       *http.Client
+	compressType CompressType
 }
 
-func New(addr string, username string, password string) (*Client, error) {
+func New(addr, username, password string, compress CompressType) (*Client, error) {
 	baseURL, err := url.Parse(addr)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Client{
-		baseURL:  baseURL,
-		username: username,
-		password: password,
-		client:   http.DefaultClient,
+		baseURL:      baseURL,
+		username:     username,
+		password:     password,
+		client:       http.DefaultClient,
+		compressType: compress,
 	}, nil
 }
 
@@ -44,12 +54,17 @@ func (c *Client) NewRequest(url, query, method string) (*http.Request, error) {
 		return nil, err
 	}
 
+	switch c.compressType {
+	case Gzip:
+		req.Header.Set("Accept-Encoding", string(Gzip))
+	}
+
 	q := req.URL.Query()
 
 	q.Add("user", c.username)
 	q.Add("password", c.password)
 	q.Add("query", query)
-
+	q.Add("enable_http_compression", "1")
 	q.Add("default_format", "PrettyCompact")
 
 	req.URL.RawQuery = q.Encode()
@@ -86,7 +101,18 @@ func (c *Client) Do(ctx context.Context, req *http.Request) (string, error) {
 
 	defer resp.Body.Close()
 
-	data, err := ioutil.ReadAll(resp.Body)
+	var reader io.ReadCloser
+
+	switch CompressType(resp.Header.Get("Content-Encoding")) {
+	case Gzip:
+		reader, err = gzip.NewReader(resp.Body)
+	default:
+		reader = resp.Body
+	}
+
+	defer reader.Close()
+
+	data, err := ioutil.ReadAll(reader)
 	if err != nil {
 		return "", err
 	}
