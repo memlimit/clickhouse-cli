@@ -117,11 +117,13 @@ func (c *Client) Do(ctx context.Context, req *http.Request) (string, error) {
 		return "", err
 	}
 
-	if err = c.handleError(resp); err != nil {
-		return "", errors.New(string(data))
+	dataWithoutNewLine := strings.TrimSuffix(string(data), "\n")
+
+	if err := c.handleError(resp); err != nil {
+		return "", errors.New(dataWithoutNewLine)
 	}
 
-	return string(data), err
+	return dataWithoutNewLine, err
 }
 
 func (c *Client) Query(ctx context.Context, query string) (string, error) {

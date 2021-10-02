@@ -31,7 +31,7 @@ func run() error {
 		return errors.New("failed to connect to ClickHouse")
 	}
 
-	fmt.Printf("Connected to ClickHouse server version %s", chVersion)
+	fmt.Printf("Connected to ClickHouse server version %s\n", chVersion)
 
 	homeDirPath, err := os.UserHomeDir()
 	h, err := history.New(homeDirPath + "/.clickhouse-client-history")
@@ -44,7 +44,7 @@ func run() error {
 		return err
 	}
 
-	c := cli.New(client, h)
+	c := cli.New(client, h, true)
 	complete := completer.New()
 
 	p := prompt.New(
@@ -52,6 +52,9 @@ func run() error {
 		complete.Complete,
 		prompt.OptionTitle("clickhouse-cli: cli for ClickHouse."),
 		prompt.OptionHistory(h.RowsToStrArr(uh)),
+		prompt.OptionPrefix(c.GetCurrentDB(context.Background()) + " :) "),
+		prompt.OptionLivePrefix(c.GetLivePrefixState),
+		prompt.OptionPrefixTextColor(prompt.White),
 	)
 
 	p.Run()
