@@ -45,9 +45,12 @@ func (c *Client) NewRequest(url, query, method string) (*http.Request, error) {
 	}
 
 	q := req.URL.Query()
+
 	q.Add("user", c.username)
 	q.Add("password", c.password)
 	q.Add("query", query)
+
+	q.Add("default_format", "PrettyCompact")
 
 	req.URL.RawQuery = q.Encode()
 
