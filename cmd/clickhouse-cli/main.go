@@ -7,9 +7,11 @@ import (
 	"github.com/c-bata/go-prompt"
 	"github.com/memlimit/clickhouse-cli/cli"
 	"github.com/memlimit/clickhouse-cli/cli/completer"
+	"github.com/memlimit/clickhouse-cli/cli/config"
 	"github.com/memlimit/clickhouse-cli/cli/history"
 	chHttp "github.com/memlimit/clickhouse-cli/pkg/clickhouse/http"
 	"os"
+	"path/filepath"
 )
 
 func main() {
@@ -21,30 +23,29 @@ func main() {
 }
 
 func run() error {
-	client, err := chHttp.New(os.Getenv("host"), "default", "", chHttp.Gzip)
+	cfg, err := config.New("../clickhouse-cli/cli/config/")
+	if err != nil {
+		return err
+	}
+
+	client, err := chHttp.New(cfg.HTTP.URL, cfg.Auth.UserName, cfg.Auth.Password, chHttp.CompressType(cfg.HTTP.Compress))
 	if err != nil {
 		return err
 	}
 
 	chVersion, err := client.Query(context.Background(), "SELECT version() FORMAT TabSeparated;")
 	if err != nil {
-		return errors.New("failed to connect to ClickHouse")
+		return errors.New("failed to connect to ClickHouse" + err.Error())
 	}
 
 	fmt.Printf("Connected to ClickHouse server version %s\n", chVersion)
 
-	homeDirPath, err := os.UserHomeDir()
-	h, err := history.New(homeDirPath + "/.clickhouse-client-history")
+	h, uh, err := initHistory(cfg.CLI.HistoryPath)
 	if err != nil {
 		return err
 	}
 
-	uh, err := h.Read()
-	if err != nil {
-		return err
-	}
-
-	c := cli.New(client, h, true)
+	c := cli.New(client, h, cfg.CLI.Multiline)
 	complete := completer.New()
 
 	p := prompt.New(
@@ -52,7 +53,7 @@ func run() error {
 		complete.Complete,
 		prompt.OptionTitle("clickhouse-cli: cli for ClickHouse."),
 		prompt.OptionHistory(h.RowsToStrArr(uh)),
-		prompt.OptionPrefix(c.GetCurrentDB(context.Background()) + " :) "),
+		prompt.OptionPrefix(c.GetCurrentDB(context.Background())+" :) "),
 		prompt.OptionLivePrefix(c.GetLivePrefixState),
 		prompt.OptionPrefixTextColor(prompt.White),
 	)
@@ -60,4 +61,25 @@ func run() error {
 	p.Run()
 
 	return nil
+}
+
+func initHistory(path string) (*history.History, []*history.Row, error) {
+	var historyPath string
+	if path != "" {
+		historyPath, _ = filepath.Abs(path)
+	} else {
+		historyPath, _ = filepath.Abs("../.clickhouse-client-history")
+	}
+
+	h, err := history.New(historyPath)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	uh, err := h.Read()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return h, uh, nil
 }
