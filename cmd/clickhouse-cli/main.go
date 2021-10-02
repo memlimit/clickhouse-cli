@@ -11,7 +11,6 @@ import (
 	"github.com/memlimit/clickhouse-cli/cli/history"
 	chHttp "github.com/memlimit/clickhouse-cli/pkg/clickhouse/http"
 	"os"
-	"path/filepath"
 )
 
 func main() {
@@ -23,7 +22,7 @@ func main() {
 }
 
 func run() error {
-	cfg, err := config.New("../clickhouse-cli/cli/config/")
+	cfg, err := config.New()
 	if err != nil {
 		return err
 	}
@@ -66,9 +65,9 @@ func run() error {
 func initHistory(path string) (*history.History, []*history.Row, error) {
 	var historyPath string
 	if path != "" {
-		historyPath, _ = filepath.Abs(path)
+		historyPath = path
 	} else {
-		historyPath, _ = filepath.Abs("../.clickhouse-client-history")
+		historyPath = os.Getenv("HOME") + "/.clickhouse-client-history"
 	}
 
 	h, err := history.New(historyPath)

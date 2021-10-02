@@ -1,6 +1,9 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"flag"
+	"github.com/spf13/viper"
+)
 
 type Protocol string
 
@@ -30,8 +33,12 @@ type Http struct {
 	Compress string `mapstructure:"compress"`
 }
 
-func New(path string) (*Config, error) {
+func New() (*Config, error) {
 	var c Config
+	var path string
+
+	flag.StringVar(&path, "config", "$HOME/clickhouse-cli/cli/config/", "set path to config")
+	flag.Parse()
 
 	viper.AddConfigPath(path)
 	viper.SetConfigName(".clickhouse-cli-config")
