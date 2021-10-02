@@ -67,7 +67,8 @@ func initHistory(path string) (*history.History, []*history.Row, error) {
 	if path != "" {
 		historyPath = path
 	} else {
-		historyPath = os.Getenv("HOME") + "/.clickhouse-client-history"
+		home, _ := os.UserHomeDir()
+		historyPath = home + "/.clickhouse-client-history"
 	}
 
 	h, err := history.New(historyPath)
