@@ -9,17 +9,22 @@ import (
 	"time"
 )
 
+// ClickHouseDateFormat - representation of date in Clickhouse,
+// like RFC3339 but without timezone and with milliseconds
 const ClickHouseDateFormat = "2006-01-02 15:04:05.000"
 
+// History object
 type History struct {
 	file *os.File
 }
 
+// Row of history
 type Row struct {
 	CreatedAt time.Time
-	Query string
+	Query     string
 }
 
+// New history object from file
 func New(path string) (*History, error) {
 	var file *os.File
 	var err error
@@ -39,10 +44,12 @@ func New(path string) (*History, error) {
 	return &History{file: file}, err
 }
 
+// Close history file
 func (h *History) Close() error {
 	return h.file.Close()
 }
 
+// Read history from file
 func (h *History) Read() ([]*Row, error) {
 	var rows []*Row
 
@@ -76,12 +83,14 @@ func (h *History) Read() ([]*Row, error) {
 	return rows, nil
 }
 
+// Write row creation date
 func (h *History) Write(row *Row) error {
 	_, err := h.file.WriteString(fmt.Sprintf("### %s\n%s\n", row.CreatedAt.Format(ClickHouseDateFormat), row.Query))
 
 	return err
 }
 
+// RowsToStrArr - convert rows to slice of strings
 func (h *History) RowsToStrArr(rows []*Row) []string {
 	historyArr := make([]string, 0, len(rows))
 

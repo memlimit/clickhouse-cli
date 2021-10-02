@@ -3,10 +3,11 @@ package cli
 import (
 	"context"
 	"fmt"
-	"github.com/memlimit/clickhouse-cli/cli/history"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/memlimit/clickhouse-cli/cli/history"
 )
 
 var exitCodes = [...]string{
@@ -30,6 +31,7 @@ var exitCodes = [...]string{
 	"Жй",
 }
 
+// Executor - exec query and write it to history + checking for one of quit commands.
 func (c *CLI) Executor(s string) {
 	if !c.isMultilineInputStarted {
 		for _, code := range exitCodes {

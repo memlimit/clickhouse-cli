@@ -4,7 +4,6 @@ run:
 
 linters:
   enable:
-    - errcheck
     - goimports
     - revive
     - govet
@@ -12,6 +11,8 @@ linters:
     - gocyclo
     - gocritic
     - gosimple
+  disable:
+    - errcheck
 
 issues:
   exclude-use-default: false

@@ -2,38 +2,37 @@ package config
 
 import (
 	"flag"
-	"github.com/spf13/viper"
 	"log"
+
+	"github.com/spf13/viper"
 )
 
-type Protocol string
-
-const (
-	HTTP Protocol = "http"
-)
-
+// Config - structure of yaml config file
 type Config struct {
-	Auth        AuthData `mapstructure:"auth"`
-	UseProtocol Protocol `mapstructure:"protocol"`
-	HTTP        Http     `mapstructure:"http"`
-	CLI         CLI      `mapstructure:"cli"`
+	Auth AuthData `mapstructure:"auth"`
+	HTTP HTTP     `mapstructure:"http"`
+	CLI  CLI      `mapstructure:"cli"`
 }
 
+// CLI config part with path to history file and multiline input state
 type CLI struct {
 	Multiline   bool   `mapstructure:"multiline"`
 	HistoryPath string `mapstructure:"historyPath"`
 }
 
+// AuthData config part with username and password
 type AuthData struct {
 	UserName string `mapstructure:"username"`
 	Password string `mapstructure:"password"`
 }
 
-type Http struct {
+// HTTP config part with url and compression type
+type HTTP struct {
 	URL      string `mapstructure:"url"`
 	Compress string `mapstructure:"compress"`
 }
 
+// New creates config object with default values or data with file
 func New() (*Config, error) {
 	var c Config
 	var path string

@@ -4,13 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+
 	"github.com/c-bata/go-prompt"
+
 	"github.com/memlimit/clickhouse-cli/cli"
 	"github.com/memlimit/clickhouse-cli/cli/completer"
 	"github.com/memlimit/clickhouse-cli/cli/config"
 	"github.com/memlimit/clickhouse-cli/cli/history"
 	chHttp "github.com/memlimit/clickhouse-cli/pkg/clickhouse/http"
-	"os"
 )
 
 func main() {

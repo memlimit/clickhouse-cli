@@ -12,12 +12,15 @@ import (
 	"strings"
 )
 
+// CompressType for types of compression :D
+// e.g. gzip/deflate/xz and others.
 type CompressType string
 
 const (
-	Gzip CompressType = "gzip"
+	Gzip CompressType = "gzip" //nolint:revive
 )
 
+// Client object
 type Client struct {
 	baseURL *url.URL
 
@@ -28,6 +31,7 @@ type Client struct {
 	compressType CompressType
 }
 
+// New - returns client object
 func New(addr, username, password string, compress CompressType) (*Client, error) {
 	baseURL, err := url.Parse(addr)
 	if err != nil {
@@ -54,8 +58,7 @@ func (c *Client) NewRequest(url, query, method string) (*http.Request, error) {
 		return nil, err
 	}
 
-	switch c.compressType {
-	case Gzip:
+	if c.compressType == Gzip {
 		req.Header.Set("Accept-Encoding", string(Gzip))
 	}
 
@@ -72,6 +75,7 @@ func (c *Client) NewRequest(url, query, method string) (*http.Request, error) {
 	return req, nil
 }
 
+// BareDo request with ctx
 func (c *Client) BareDo(ctx context.Context, req *http.Request) (*http.Response, error) {
 	if ctx == nil {
 		return nil, errors.New("ctx must be not nil")
@@ -93,6 +97,7 @@ func (c *Client) BareDo(ctx context.Context, req *http.Request) (*http.Response,
 	return resp, err
 }
 
+// Do http request
 func (c *Client) Do(ctx context.Context, req *http.Request) (string, error) {
 	resp, err := c.BareDo(ctx, req)
 	if err != nil {
@@ -105,7 +110,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request) (string, error) {
 
 	switch CompressType(resp.Header.Get("Content-Encoding")) {
 	case Gzip:
-		reader, err = gzip.NewReader(resp.Body)
+		reader, _ = gzip.NewReader(resp.Body)
 	default:
 		reader = resp.Body
 	}
@@ -126,6 +131,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request) (string, error) {
 	return dataWithoutNewLine, err
 }
 
+// Query - build http request with query to clickhouse
 func (c *Client) Query(ctx context.Context, query string) (string, error) {
 	req, err := c.NewRequest(c.baseURL.String(), query, "POST")
 	if err != nil {
