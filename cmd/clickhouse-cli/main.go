@@ -8,7 +8,7 @@ import (
 	"github.com/memlimit/clickhouse-cli/cli"
 	"github.com/memlimit/clickhouse-cli/cli/completer"
 	"github.com/memlimit/clickhouse-cli/cli/history"
-	"github.com/memlimit/clickhouse-cli/pkg/clickhouse/http"
+	chHttp "github.com/memlimit/clickhouse-cli/pkg/clickhouse/http"
 	"os"
 )
 
@@ -21,7 +21,7 @@ func main() {
 }
 
 func run() error {
-	client, err := http.New("https://gh-api.clickhouse.tech/", "play", "")
+	client, err := chHttp.New(os.Getenv("host"), "default", "", chHttp.Gzip)
 	if err != nil {
 		return err
 	}
