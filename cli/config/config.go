@@ -3,6 +3,7 @@ package config
 import (
 	"flag"
 	"github.com/spf13/viper"
+	"log"
 )
 
 type Protocol string
@@ -37,19 +38,20 @@ func New() (*Config, error) {
 	var c Config
 	var path string
 
-	flag.StringVar(&path, "config", "$HOME/clickhouse-cli/cli/config/", "set path to config")
+	flag.StringVar(&path, "c", "$HOME/", "set path to config")
+	flag.StringVar(&c.Auth.UserName, "u", "default", "set user name")
+	flag.StringVar(&c.Auth.Password, "p", "", "set user password")
+	flag.StringVar(&c.HTTP.URL, "h", "http://127.0.0.1:8123/", "set http host")
+	flag.StringVar(&c.HTTP.Compress, "cp", "gzip", "set compress method")
 	flag.Parse()
 
 	viper.AddConfigPath(path)
 	viper.SetConfigName(".clickhouse-cli-config")
 
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, err
+		log.Printf("config not found at: %s. Set default values.", path)
 	}
-
-	if err := viper.Unmarshal(&c); err != nil {
-		return nil, err
-	}
+	_ = viper.Unmarshal(&c)
 
 	return &c, nil
 }
