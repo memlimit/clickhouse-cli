@@ -8,11 +8,18 @@ import (
 type CLI struct {
 	client clickhouse.Client
 	history *history.History
+
+	Multiline bool
+	isMultilineInputStarted bool
+	query string
 }
 
-func New(client clickhouse.Client, history *history.History) *CLI {
+func New(client clickhouse.Client, history *history.History, multiline bool) *CLI {
 	return &CLI{
 		client: client,
 		history: history,
+		Multiline: multiline,
+
+		isMultilineInputStarted: false,
 	}
 }
