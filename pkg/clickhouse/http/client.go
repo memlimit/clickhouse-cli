@@ -17,7 +17,7 @@ import (
 type CompressType string
 
 const (
-	No CompressType = "" //nolint:revive
+	No   CompressType = ""     //nolint:revive
 	Gzip CompressType = "gzip" //nolint:revive
 )
 
@@ -116,9 +116,11 @@ func (c *Client) Do(ctx context.Context, req *http.Request) (string, error) {
 	switch CompressType(resp.Header.Get("Content-Encoding")) {
 	case Gzip:
 		reader, err = gzip.NewReader(resp.Body) //nolint:ineffassign
-		return "", err
 	default:
 		reader = resp.Body
+	}
+	if err != nil {
+		return "", err
 	}
 
 	defer reader.Close()
