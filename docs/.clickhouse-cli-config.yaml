@@ -1,0 +1,23 @@
+# sample config for github.com/memlimit/clickhouse-cli + description
+
+# auth: username is "default" without password
+# cli: multiline input is disabled and history path is equal to $HOME/.clickhouse-client-history
+# http: ip:port - 8123 is default clickhouse port for third-party http clients
+# grpc: ip:port - 9100 is default clickhouse port for gRPC
+# compress for http and grpc are the same. Current only gzip is supported
+# protocol: default is http, but you can specify to use gRPC
+
+auth:
+  username: "default"
+  password: ""
+cli:
+  multiline: false
+  historypath: ""
+http:
+  url: "http://127.0.0.1:8123/"
+  compress: ""
+grpc:
+  url: "127.0.0.1:9100/"
+  compress: ""
+
+protocol: 0
