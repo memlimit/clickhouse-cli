@@ -111,6 +111,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request) (string, error) {
 	switch CompressType(resp.Header.Get("Content-Encoding")) {
 	case Gzip:
 		reader, err = gzip.NewReader(resp.Body) //nolint:ineffassign
+		return "", err
 	default:
 		reader = resp.Body
 	}
@@ -124,7 +125,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request) (string, error) {
 
 	dataWithoutNewLine := strings.TrimSuffix(string(data), "\n")
 
-	if err := c.handleError(resp); err != nil {
+	if err = c.handleError(resp); err != nil {
 		return "", errors.New(dataWithoutNewLine)
 	}
 
