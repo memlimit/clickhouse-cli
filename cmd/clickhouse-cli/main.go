@@ -38,9 +38,9 @@ func run() error {
 
 	switch cfg.Protocol {
 	case config.Http:
-		client, err = chHttp.New(cfg.Address, cfg.Auth.UserName, cfg.Auth.Password, chHttp.CompressType(cfg.Compress))
+		client, err = chHttp.New(cfg.Address, cfg.Auth.UserName, cfg.Auth.Password, cfg.Compress)
 	case config.Grpc:
-		client, err = chGrpc.New(cfg.Address, cfg.Auth.UserName, cfg.Auth.Password, "")
+		client, err = chGrpc.New(cfg.Address, cfg.Auth.UserName, cfg.Auth.Password, cfg.Compress)
 	default:
 		return errors.New("protocol is unsupported")
 	}

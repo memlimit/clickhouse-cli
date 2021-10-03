@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"github.com/memlimit/clickhouse-cli/pkg/clickhouse"
 	"log"
 
 	"github.com/spf13/viper"
@@ -17,11 +18,11 @@ const (
 
 // Config - structure of yaml config file
 type Config struct {
-	Auth     AuthData `mapstructure:"auth"`
-	CLI      CLI      `mapstructure:"cli"`
-	Protocol Protocol `mapstructure:"protocol"`
-	Compress string   `mapstructure:"compress"`
-	Address  string   `mapstructure:"address"`
+	Auth     AuthData                `mapstructure:"auth"`
+	CLI      CLI                     `mapstructure:"cli"`
+	Protocol Protocol                `mapstructure:"protocol"`
+	Compress clickhouse.CompressType `mapstructure:"compress"`
+	Address  string                  `mapstructure:"address"`
 }
 
 // CLI config part with path to history file and multiline input state
@@ -46,7 +47,7 @@ func New() (*Config, error) {
 	flag.StringVar(&c.Auth.Password, "password", "", "set user password")
 
 	flag.StringVar(&c.Address, "address", "127.0.0.1:8123/", "set host:port")
-	flag.StringVar(&c.Compress, "compress", "", "set compress method")
+	flag.StringVar((*string)(&c.Compress), "compress", "", "set compress method")
 
 	flag.IntVar((*int)(&c.Protocol), "protocol", 0, "set default protocol. http/grpc")
 	flag.Parse()

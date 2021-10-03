@@ -2,16 +2,9 @@ package grpc
 
 import (
 	"context"
+	"github.com/memlimit/clickhouse-cli/pkg/clickhouse"
 
 	"google.golang.org/grpc"
-)
-
-// CompressType - no/gzip
-type CompressType string
-
-const (
-	No   CompressType = ""     //nolint:revive
-	Gzip CompressType = "gzip" //nolint:revive
 )
 
 // Client gRPC
@@ -21,11 +14,11 @@ type Client struct {
 	username string
 	password string
 
-	compressType CompressType
+	compressType clickhouse.CompressType
 }
 
 // New - returns new client via gRPC
-func New(addr, username, password string, compress CompressType) (*Client, error) {
+func New(addr, username, password string, compress clickhouse.CompressType) (*Client, error) {
 	var opts []grpc.DialOption
 	conn, err := grpc.Dial(addr, opts...)
 	if err != nil {
@@ -49,9 +42,9 @@ func (c *Client) Query(ctx context.Context, query string) (string, error) {
 	cp.Level = CompressionLevel_COMPRESSION_HIGH
 
 	switch c.compressType {
-	case Gzip:
+	case clickhouse.Gzip:
 		cp.Algorithm = CompressionAlgorithm_GZIP
-	case No:
+	case clickhouse.No:
 		cp.Algorithm = CompressionAlgorithm_NO_COMPRESSION
 	default:
 		cp.Algorithm = CompressionAlgorithm_NO_COMPRESSION

@@ -5,20 +5,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/memlimit/clickhouse-cli/pkg/clickhouse"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
-)
-
-// CompressType for types of compression :D
-// e.g. gzip/deflate/xz and others.
-type CompressType string
-
-const (
-	No   CompressType = ""     //nolint:revive
-	Gzip CompressType = "gzip" //nolint:revive
 )
 
 // Client object
@@ -29,11 +21,11 @@ type Client struct {
 	password string
 
 	client       *http.Client
-	compressType CompressType
+	compressType clickhouse.CompressType
 }
 
 // New - returns client object
-func New(addr, username, password string, compress CompressType) (*Client, error) {
+func New(addr, username, password string, compress clickhouse.CompressType) (*Client, error) {
 	baseURL, err := url.Parse(addr)
 	if err != nil {
 		return nil, err
@@ -59,8 +51,8 @@ func (c *Client) NewRequest(url, query, method string) (*http.Request, error) {
 		return nil, err
 	}
 
-	if c.compressType == Gzip {
-		req.Header.Set("Accept-Encoding", string(Gzip))
+	if c.compressType == clickhouse.Gzip {
+		req.Header.Set("Accept-Encoding", string(clickhouse.Gzip))
 	}
 
 	q := req.URL.Query()
@@ -69,7 +61,7 @@ func (c *Client) NewRequest(url, query, method string) (*http.Request, error) {
 	q.Add("password", c.password)
 	q.Add("query", query)
 
-	if c.compressType != No {
+	if c.compressType != clickhouse.No {
 		q.Add("enable_http_compression", "1")
 	}
 
@@ -113,8 +105,8 @@ func (c *Client) Do(ctx context.Context, req *http.Request) (string, error) {
 
 	var reader io.ReadCloser
 
-	switch CompressType(resp.Header.Get("Content-Encoding")) {
-	case Gzip:
+	switch clickhouse.CompressType(resp.Header.Get("Content-Encoding")) {
+	case clickhouse.Gzip:
 		reader, err = gzip.NewReader(resp.Body) //nolint:ineffassign
 	default:
 		reader = resp.Body
