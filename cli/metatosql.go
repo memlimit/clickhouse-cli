@@ -7,6 +7,7 @@ import (
 
 // ErrInvalidMetaCommand error.
 var ErrInvalidMetaCommand = errors.New("incorrect meta-command")
+
 // ErrArgumentNotProvided error.
 var ErrArgumentNotProvided = errors.New("argument to meta-command doesnt provided")
 
