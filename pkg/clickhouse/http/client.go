@@ -110,7 +110,7 @@ func (c *Client) Do(ctx context.Context, req *http.Request) (string, error) {
 
 	switch CompressType(resp.Header.Get("Content-Encoding")) {
 	case Gzip:
-		reader, _ = gzip.NewReader(resp.Body)
+		reader, err = gzip.NewReader(resp.Body) //nolint:ineffassign
 	default:
 		reader = resp.Body
 	}
