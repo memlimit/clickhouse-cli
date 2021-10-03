@@ -41,6 +41,16 @@ func (c *CLI) Executor(s string) {
 				return
 			}
 		}
+
+		if strings.Contains(s, "\\") {
+			mToSQL, err := c.MetaToSQL(s)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			s = mToSQL
+		}
 	}
 
 	if c.Multiline {
