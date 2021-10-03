@@ -17,6 +17,7 @@ import (
 type CompressType string
 
 const (
+	No CompressType = "" //nolint:revive
 	Gzip CompressType = "gzip" //nolint:revive
 )
 
@@ -67,7 +68,11 @@ func (c *Client) NewRequest(url, query, method string) (*http.Request, error) {
 	q.Add("user", c.username)
 	q.Add("password", c.password)
 	q.Add("query", query)
-	q.Add("enable_http_compression", "1")
+
+	if c.compressType != No {
+		q.Add("enable_http_compression", "1")
+	}
+
 	q.Add("default_format", "PrettyCompact")
 
 	req.URL.RawQuery = q.Encode()

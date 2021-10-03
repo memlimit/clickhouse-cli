@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 
@@ -36,7 +35,7 @@ func run() error {
 
 	chVersion, err := client.Query(context.Background(), "SELECT version() FORMAT TabSeparated;")
 	if err != nil {
-		return errors.New("failed to connect to ClickHouse" + err.Error())
+		return fmt.Errorf("failed to connect to ClickHouse (%s)", err.Error())
 	}
 
 	fmt.Printf("Connected to ClickHouse server version %s\n", chVersion)

@@ -41,7 +41,7 @@ func New() (*Config, error) {
 	flag.StringVar(&c.Auth.UserName, "u", "default", "set user name")
 	flag.StringVar(&c.Auth.Password, "p", "", "set user password")
 	flag.StringVar(&c.HTTP.URL, "h", "http://127.0.0.1:8123/", "set http host")
-	flag.StringVar(&c.HTTP.Compress, "cp", "gzip", "set compress method")
+	flag.StringVar(&c.HTTP.Compress, "cp", "", "set compress method")
 	flag.Parse()
 
 	viper.AddConfigPath(path)
