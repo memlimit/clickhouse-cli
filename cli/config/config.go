@@ -7,20 +7,21 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Protocol custom type of int
 type Protocol int
 
 const (
-	Http Protocol = 0
-	Grpc Protocol = 1
+	Http Protocol = 0 //nolint:revive
+	Grpc Protocol = 1 //nolint:revive
 )
 
 // Config - structure of yaml config file
 type Config struct {
 	Auth     AuthData `mapstructure:"auth"`
-	HTTP     HTTP     `mapstructure:"http"`
-	GRPC     GRPC     `mapstructure:"http"`
 	CLI      CLI      `mapstructure:"cli"`
 	Protocol Protocol `mapstructure:"protocol"`
+	Compress string   `mapstructure:"compress"`
+	Address  string   `mapstructure:"address"`
 }
 
 // CLI config part with path to history file and multiline input state
@@ -35,18 +36,6 @@ type AuthData struct {
 	Password string `mapstructure:"password"`
 }
 
-// HTTP config part with url and compression type
-type HTTP struct {
-	URL      string `mapstructure:"url"`
-	Compress string `mapstructure:"compress"`
-}
-
-// GRPC config part with url and compression type
-type GRPC struct {
-	URL      string `mapstructure:"url"`
-	Compress string `mapstructure:"compress"`
-}
-
 // New creates config object with default values or data with file
 func New() (*Config, error) {
 	var c Config
@@ -56,11 +45,8 @@ func New() (*Config, error) {
 	flag.StringVar(&c.Auth.UserName, "username", "default", "set user name")
 	flag.StringVar(&c.Auth.Password, "password", "", "set user password")
 
-	flag.StringVar(&c.HTTP.URL, "http", "http://127.0.0.1:8123/", "set http host")
-	flag.StringVar(&c.HTTP.Compress, "h-compress", "", "set compress method for http")
-
-	flag.StringVar(&c.GRPC.URL, "grpc", "127.0.0.1:9100/", "set grpc host")
-	flag.StringVar(&c.GRPC.Compress, "g-compress", "", "set compress method for grpc")
+	flag.StringVar(&c.Address, "address", "127.0.0.1:8123/", "set host:port")
+	flag.StringVar(&c.Compress, "compress", "", "set compress method")
 
 	flag.IntVar((*int)(&c.Protocol), "protocol", 0, "set default protocol. http/grpc")
 	flag.Parse()

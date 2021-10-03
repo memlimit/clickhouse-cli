@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"github.com/memlimit/clickhouse-cli/pkg/clickhouse"
-	"github.com/memlimit/clickhouse-cli/pkg/clickhouse/grpc"
 	"os"
+
+	"github.com/memlimit/clickhouse-cli/pkg/clickhouse"
 
 	"github.com/c-bata/go-prompt"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/memlimit/clickhouse-cli/cli/completer"
 	"github.com/memlimit/clickhouse-cli/cli/config"
 	"github.com/memlimit/clickhouse-cli/cli/history"
+	chGrpc "github.com/memlimit/clickhouse-cli/pkg/clickhouse/grpc"
 	chHttp "github.com/memlimit/clickhouse-cli/pkg/clickhouse/http"
 )
 
@@ -36,9 +38,14 @@ func run() error {
 
 	switch cfg.Protocol {
 	case config.Http:
-		client, err = chHttp.New(cfg.HTTP.URL, cfg.Auth.UserName, cfg.Auth.Password, chHttp.CompressType(cfg.HTTP.Compress))
+		client, err = chHttp.New(cfg.Address, cfg.Auth.UserName, cfg.Auth.Password, chHttp.CompressType(cfg.Compress))
 	case config.Grpc:
-		client, err = grpc.New(cfg.HTTP.URL, cfg.Auth.UserName, cfg.Auth.Password, "")
+		client, err = chGrpc.New(cfg.Address, cfg.Auth.UserName, cfg.Auth.Password, "")
+	default:
+		return errors.New("protocol is unsupported")
+	}
+	if err != nil {
+		return err
 	}
 
 	chVersion, err := client.Query(context.Background(), "SELECT version() FORMAT TabSeparated;")

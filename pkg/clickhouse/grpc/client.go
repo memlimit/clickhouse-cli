@@ -2,9 +2,11 @@ package grpc
 
 import (
 	"context"
+
 	"google.golang.org/grpc"
 )
 
+// CompressType - no/gzip
 type CompressType string
 
 const (
@@ -12,6 +14,7 @@ const (
 	Gzip CompressType = "gzip" //nolint:revive
 )
 
+// Client gRPC
 type Client struct {
 	chClient clickHouseClient
 
@@ -21,6 +24,7 @@ type Client struct {
 	compressType CompressType
 }
 
+// New - returns new client via gRPC
 func New(addr, username, password string, compress CompressType) (*Client, error) {
 	var opts []grpc.DialOption
 	conn, err := grpc.Dial(addr, opts...)
@@ -39,6 +43,7 @@ func New(addr, username, password string, compress CompressType) (*Client, error
 	}, nil
 }
 
+// Query with gRPC
 func (c *Client) Query(ctx context.Context, query string) (string, error) {
 	var cp Compression
 	cp.Level = CompressionLevel_COMPRESSION_HIGH
