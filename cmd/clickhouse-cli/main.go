@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/memlimit/clickhouse-cli/pkg/clickhouse"
+	"github.com/memlimit/clickhouse-cli/pkg/clickhouse/grpc"
 	"os"
 
 	"github.com/c-bata/go-prompt"
@@ -23,14 +25,20 @@ func main() {
 }
 
 func run() error {
+	var err error
+
 	cfg, err := config.New()
 	if err != nil {
 		return err
 	}
 
-	client, err := chHttp.New(cfg.HTTP.URL, cfg.Auth.UserName, cfg.Auth.Password, chHttp.CompressType(cfg.HTTP.Compress))
-	if err != nil {
-		return err
+	var client clickhouse.Client
+
+	switch cfg.Protocol {
+	case config.Http:
+		client, err = chHttp.New(cfg.HTTP.URL, cfg.Auth.UserName, cfg.Auth.Password, chHttp.CompressType(cfg.HTTP.Compress))
+	case config.Grpc:
+		client, err = grpc.New(cfg.HTTP.URL, cfg.Auth.UserName, cfg.Auth.Password, "")
 	}
 
 	chVersion, err := client.Query(context.Background(), "SELECT version() FORMAT TabSeparated;")
