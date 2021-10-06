@@ -58,7 +58,7 @@ func run() error {
 		prompt.OptionPrefixTextColor(prompt.White),
 		prompt.OptionAddKeyBind(prompt.KeyBind{
 			Key: prompt.F3,
-			Fn: c.MultilineControl,
+			Fn:  c.MultilineControl,
 		}),
 	)
 
