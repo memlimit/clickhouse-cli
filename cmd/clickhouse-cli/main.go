@@ -56,6 +56,10 @@ func run() error {
 		prompt.OptionPrefix(c.GetCurrentDB(context.Background())+" :) "),
 		prompt.OptionLivePrefix(c.GetLivePrefixState),
 		prompt.OptionPrefixTextColor(prompt.White),
+		prompt.OptionAddKeyBind(prompt.KeyBind{
+			Key: prompt.F3,
+			Fn:  c.MultilineControl,
+		}),
 	)
 
 	p.Run()
